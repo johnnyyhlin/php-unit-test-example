@@ -31,6 +31,11 @@ class AuthenticationServiceTest extends TestCase
         $this->shouldBeValid('richard', '91000000');
     }
 
+    public function test_isInvalid()
+    {
+
+    }
+
     private function givenProfile($account, $password): void
     {
         $this->stubProfile->shouldReceive('getPassword')
