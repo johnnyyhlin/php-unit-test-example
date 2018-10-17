@@ -19,14 +19,14 @@ class AuthenticationServiceTest extends TestCase
     private $stubToken;
 
     private $target;
-
+    
     private $stubLogger;
 
     protected function setUp()
     {
         $this->stubProfile = m::mock(IProfile::class);
         $this->stubToken = m::mock(IToken::class);
-        $this->stubLogger = m::mock(ILogger::class);
+        $this->stubLogger = m::spy(ILogger::class);
 
         $this->target = new AuthenticationService($this->stubProfile, $this->stubToken, $this->stubLogger);
     }
@@ -44,6 +44,7 @@ class AuthenticationServiceTest extends TestCase
         $this->givenProfile('richard', '91');
         $this->givenToken('000000');
         $actual = $this->target->isValid('richard', 'wrong_password');
+
         $this->assertTrue(!$actual);
     }
 
@@ -51,12 +52,11 @@ class AuthenticationServiceTest extends TestCase
     {
         $this->givenProfile('richard', '91');
         $this->givenToken('000000');
+        $this->target->isValid('richard', 'wrong_password');
 
-        $this->stubLogger->shouldReceive('save')->with(m::on(function($message){
+        $this->stubLogger->shouldHaveReceived('save')->with(m::on(function($message){
             return strpos($message, 'richard') !== false;
         }))->once();
-
-        $this->target->isValid('richard', 'wrong_password');
     }
 
     private function givenProfile($account, $password): void
