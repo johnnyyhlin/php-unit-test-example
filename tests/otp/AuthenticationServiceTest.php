@@ -33,7 +33,11 @@ class AuthenticationServiceTest extends TestCase
 
     public function test_isInvalid()
     {
+        $this->givenProfile('richard', '91');
+        $this->givenToken('000000');
 
+        $actual = $this->target->isValid('richard', 'wrong_password');
+        $this->assertTrue(!$actual);
     }
 
     private function givenProfile($account, $password): void
