@@ -14,6 +14,7 @@ use Mockery as m;
 use App\EcStore\MyOrderModel;
 use App\EcStore\IRepository;
 use App\EcStore\MyOrder;
+use stdClass;
 
 class MyOrderModelTest extends TestCase
 {
@@ -34,21 +35,10 @@ class MyOrderModelTest extends TestCase
     public function insert_order()
     {
         $this->givenNotExistOrder();
+        $insertCallback = $this->createCallback(1);
+        $updateCallback = $this->createCallback(0);
         $this->repoShouldInsertOrder();
-
-        $insertFlag = false;
-        $insertFunc = function ($order) use (&$insertFlag) {
-            $insertFlag = true;
-        };
-        $updateFlag = false;
-        $updateFunc = function ($order) use (&$updateFlag) {
-            $updateFlag = true;
-        };
-
-        $this->myOrderModel->save(new MyOrder(), $insertFunc, $updateFunc);
-
-        $this->shouldInvokeInsertClosure($insertFlag);
-        $this->shouldNotInvokeUpdateClosure($updateFlag);
+        $this->myOrderModel->save(new MyOrder(), $insertCallback, $updateCallback);
     }
     /** @test */
     public function update_order()
@@ -80,5 +70,18 @@ class MyOrderModelTest extends TestCase
     private function shouldNotInvokeUpdateClosure($updateFlag): void
     {
         $this->assertFalse($updateFlag);
+    }
+
+
+    /**
+     * @param $expectedInvokedTimes
+     * @return array
+     */
+    private function createCallback($expectedInvokedTimes)
+    {
+        $mockCallable = m::mock(stdClass::class);
+        $mockCallable->shouldReceive('call')->times($expectedInvokedTimes);
+        $mockCallback = [$mockCallable, 'call'];
+        return $mockCallback;
     }
 }
