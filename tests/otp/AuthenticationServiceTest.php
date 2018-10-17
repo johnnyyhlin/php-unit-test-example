@@ -19,7 +19,7 @@ class AuthenticationServiceTest extends TestCase
     private $stubToken;
 
     private $target;
-    
+
     private $stubLogger;
 
     protected function setUp()
@@ -50,13 +50,9 @@ class AuthenticationServiceTest extends TestCase
 
     public function test_logAccountWhenInvalid()
     {
-        $this->givenProfile('richard', '91');
-        $this->givenToken('000000');
-        $this->target->isValid('richard', 'wrong_password');
-
-        $this->stubLogger->shouldHaveReceived('save')->with(m::on(function($message){
-            return strpos($message, 'richard') !== false;
-        }))->once();
+        $this->whenInvalid();
+        
+        $this->loggerShouldLogAccount('richard');
     }
 
     private function givenProfile($account, $password): void
@@ -76,5 +72,19 @@ class AuthenticationServiceTest extends TestCase
     {
         $actual = $this->target->isValid($account, $password);
         $this->assertTrue($actual);
+    }
+
+    private function whenInvalid(): void
+    {
+        $this->givenProfile('richard', '91');
+        $this->givenToken('000000');
+        $this->target->isValid('richard', 'wrong_password');
+    }
+
+    private function loggerShouldLogAccount($account): void
+    {
+        $this->stubLogger->shouldHaveReceived('save')->with(m::on(function ($message) use ($account) {
+            return strpos($message, $account) !== false;
+        }))->once();
     }
 }
