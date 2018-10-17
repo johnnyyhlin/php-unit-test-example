@@ -53,7 +53,6 @@ class AuthenticationService
             return true;
         } else {
             $this->logger->save(sprintf('account: %s try to login failed', $account));
-
             return false;
         }
     }
